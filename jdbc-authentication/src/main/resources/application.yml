@@ -1,0 +1,5 @@
+server:
+  port: 8002
+spring:
+  datasource:
+    platform: h2
