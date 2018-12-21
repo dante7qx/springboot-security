@@ -1,4 +1,4 @@
-## 基于请求 URL 的认证授权
+## 基于方法调用的认证鉴权
 
 - InitDataConfig
 
@@ -19,18 +19,18 @@
 
   继承 UsernamePasswordAuthenticationFilter，实现具体的用户认证业务。
 
-- AuthroizeSourceMetadata
+- 被调用方法
 
-  FilterInvocationSecurityMetadataSource 的具体实现，用于获取请求URL对应的权限信息。
-
-- AuthVoter
-
-  自定义投票器，仿照 RoleVoter 编写。
+  在方法上添加注解 `@PreAuthorize("hasAuthority('AUTH_USER_DEL')")`
 
 - 总配置
 
 ```java
+/** 
+ * @EnableGlobalMethodSecurity(prePostEnabled = true) 开启方法调用鉴权拦截
+ */
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
@@ -71,27 +71,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return authenticationProvider;
 	}
 	
-	@Bean
-	public FilterInvocationSecurityMetadataSource securityMetadataSource() {
-		return new AuthroizeSourceMetadata();
-	}
-	
-	@Bean 
-	public AccessDecisionManager accessDecisionManager() {
-		AccessDecisionManager accessDecisionManager = new AffirmativeBased(Arrays.asList(new AuthVoter()));
-		return accessDecisionManager;
-	}
-	
-	@Bean
-	public FilterSecurityInterceptor filterSecurityInterceptor() throws Exception {
-		FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
-		filterSecurityInterceptor.setSecurityMetadataSource(securityMetadataSource());
-		filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
-		filterSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
-		filterSecurityInterceptor.setRejectPublicInvocations(false);
-		return filterSecurityInterceptor;
-	}
-	
 	@Autowired
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.authenticationProvider(authenticationProvider());
@@ -103,8 +82,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			.authorizeRequests().antMatchers("/favicon.ico","/home").permitAll()
 			.and()
-			.addFilterAt(authFilter(), UsernamePasswordAuthenticationFilter.class)
-			.addFilterAt(filterSecurityInterceptor(), FilterSecurityInterceptor.class);
+			.addFilterAt(authFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 	
 	@Override
