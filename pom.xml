@@ -23,12 +23,16 @@
 		<module>jdbc-authentication</module>
 		<module>path-based-security</module>
 		<module>method-based-security</module>
+		<module>oauth-authorization-server</module>
+		<module>oauth-resource-server1</module>
+		<module>oauth-client-authorization-code</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<oauth2-autoconfig.version>2.1.1.RELEASE</oauth2-autoconfig.version>
 	</properties>
 
 	<dependencies>

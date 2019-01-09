@@ -1,0 +1,10 @@
+server:
+  port: 8001
+  servlet:
+    context-path: /auth
+spring:
+  thymeleaf:
+    cache: false
+    
+    
+debug: true
