@@ -1,0 +1,7 @@
+server:
+  port: 8801
+spring:
+  thymeleaf:
+    cache: false
+  session:
+    store-type: redis

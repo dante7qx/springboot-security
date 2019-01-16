@@ -26,6 +26,7 @@
 		<module>oauth-authorization-server</module>
 		<module>oauth-resource-server1</module>
 		<module>oauth-client-authorization-code</module>
+		<module>session-redis</module>
 	</modules>
 
 	<properties>
