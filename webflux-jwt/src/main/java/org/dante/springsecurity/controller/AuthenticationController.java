@@ -28,9 +28,9 @@ public class AuthenticationController {
 
 	@PostMapping("/auth/login")
 	public Mono<ResponseEntity<?>> login(@RequestBody AuthRequest ar) {
-		return userRepository.findByUsername(ar.getUsername()).map((userDetails) -> {
-			if (passwordEncoder.encode(ar.getPassword()).equals(userDetails.getPassword())) {
-				return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userDetails)));
+		return userRepository.findByUsername(ar.getUsername()).map(u -> {
+			if (passwordEncoder.encode(ar.getPassword()).equals(u.getPassword())) {
+				return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(u)));
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			}
