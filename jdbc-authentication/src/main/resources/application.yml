@@ -1,5 +1,9 @@
 server:
   port: 8002
 spring:
-  datasource:
-    platform: h2
+  sql:
+    init:
+      platform: h2
+logging:
+  level:
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG

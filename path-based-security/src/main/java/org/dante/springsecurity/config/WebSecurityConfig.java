@@ -100,9 +100,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		super.configure(http);
 		http
-			.authorizeRequests().antMatchers("/favicon.ico","/home").permitAll()
+			.authorizeRequests().antMatchers("/favicon.ico", "/home").permitAll()
+			.antMatchers("/*").authenticated()
+			.and()
+			.formLogin()
 			.and()
 			.addFilterAt(authFilter(), UsernamePasswordAuthenticationFilter.class)
 			.addFilterAt(filterSecurityInterceptor(), FilterSecurityInterceptor.class);

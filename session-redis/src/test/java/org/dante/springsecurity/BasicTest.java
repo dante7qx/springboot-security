@@ -1,6 +1,6 @@
 package org.dante.springsecurity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
 
