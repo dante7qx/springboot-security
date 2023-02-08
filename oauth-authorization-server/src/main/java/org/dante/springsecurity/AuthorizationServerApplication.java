@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Spring Security OAuth2 认证服务器
  * 
+ * 参考：https://juejin.cn/post/6844904095942180878
+ * 
  * @author dante
  *
  */

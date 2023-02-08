@@ -4,7 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * 第一个 Spring Security 应用
+ * Spring Security OAuth2 
+ * 参考：https://blog.csdn.net/qq_31635851/article/details/120706389
  * 
  * @author dante
  *
