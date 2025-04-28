@@ -19,8 +19,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
+
+	public WebSecurityConfig(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
@@ -33,7 +36,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.jdbcAuthentication()
 		.dataSource(dataSource)
 		.withDefaultSchema()
-		.withUser(User.withUsername("dante").password("$2a$10$G4Io4382I2d9yXqn0mFf.uU8ObvYw4L9X/JLgsUTu/sG3/gGfQG/u").roles("USER"));
+		.withUser(User.withUsername("dante").password("$2a$10$G4Io4382I2d9yXqn0mFf.uU8ObvYw4L9X/JLgsUTu/sG3/gGfQG/u").roles("USER"))
+		;
 	}
 	
 }
