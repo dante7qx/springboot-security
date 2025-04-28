@@ -1,7 +1,5 @@
 package org.dante.springsecurity.config;
 
-import java.util.Arrays;
-
 import org.dante.springsecurity.security.AuthFilter;
 import org.dante.springsecurity.security.AuthVoter;
 import org.dante.springsecurity.security.AuthroizeSourceMetadata;
@@ -25,6 +23,8 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Collections;
+
 /**
  * Spring Security5 必须要指定一个 PasswordEncoder
  * 
@@ -34,14 +34,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	@Autowired
-	private AuthService authService;
+	private final AuthService authService;
+
+	public WebSecurityConfig(AuthService authService) {
+		this.authService = authService;
+	}
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Bean
 	public AuthFilter authFilter() throws Exception {
 		AuthFilter authFilter = new AuthFilter();
@@ -79,8 +82,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean 
 	public AccessDecisionManager accessDecisionManager() {
-		AccessDecisionManager accessDecisionManager = new AffirmativeBased(Arrays.asList(new AuthVoter()));
-		return accessDecisionManager;
+        return new AffirmativeBased(Collections.singletonList(new AuthVoter()));
 	}
 	
 	@Bean
@@ -101,7 +103,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests().antMatchers("/favicon.ico", "/home").permitAll()
+			.authorizeRequests().
+				antMatchers("/favicon.ico", "/home").permitAll()
 			.antMatchers("/*").authenticated()
 			.and()
 			.formLogin()

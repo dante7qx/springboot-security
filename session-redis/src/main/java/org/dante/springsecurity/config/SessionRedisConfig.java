@@ -12,10 +12,4 @@ public class SessionRedisConfig {
 		return new LettuceConnectionFactory();
 	}
 
-	/**
-	@Bean
-	public HttpSessionIdResolver httpSessionIdResolver() {
-		return HeaderHttpSessionIdResolver.xAuthToken(); 
-	}
-	**/
 }
