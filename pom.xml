@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.15</version>
+		<version>2.7.18</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -23,9 +23,11 @@
 		<module>jdbc-authentication</module>
 		<module>path-based-security</module>
 		<module>method-based-security</module>
+		<!--
 		<module>oauth-authorization-server</module>
 		<module>oauth-resource-server1</module>
 		<module>oauth-client-authorization-code</module>
+		-->
 		<module>session-redis</module>
 		<module>webflux-jwt</module>
 	</modules>
@@ -33,9 +35,9 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
-		<oauth2-autoconfig.version>2.5.14</oauth2-autoconfig.version>
-		<jjwt.version>0.10.7</jjwt.version>
+		<java.version>17</java.version>
+		<oauth2-autoconfig.version>2.7.18</oauth2-autoconfig.version>
+		<jjwt.version>0.12.6</jjwt.version>
 	</properties>
 
 	<dependencies>
