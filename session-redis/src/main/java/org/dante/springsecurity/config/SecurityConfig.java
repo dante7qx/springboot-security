@@ -1,13 +1,12 @@
 package org.dante.springsecurity.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
  * Spring Security5 必须要指定一个 PasswordEncoder
@@ -15,34 +14,22 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * @author dante
  *
  */
-@EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+@Configuration
+public class SecurityConfig  {
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Autowired
+	@Bean
+	public UserDetailsService userDetailsService() {
+		UserDetails user = User.withUsername("dante")
+				.password("$2a$10$G4Io4382I2d9yXqn0mFf.uU8ObvYw4L9X/JLgsUTu/sG3/gGfQG/u")
+				.roles("USER")
+				.build();
 
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		// @formatter:off
-		auth
-			.inMemoryAuthentication()
-			.withUser("dante")
-			.password(passwordEncoder().encode("1234qwer"))
-			.roles("USER");
-		// @formatter:on
-	}
-
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		super.configure(web);
-	}
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		super.configure(http);
+		return new InMemoryUserDetailsManager(user);
 	}
 
 }

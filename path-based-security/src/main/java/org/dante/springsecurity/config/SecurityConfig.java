@@ -4,24 +4,23 @@ import org.dante.springsecurity.security.AuthFilter;
 import org.dante.springsecurity.security.AuthVoter;
 import org.dante.springsecurity.security.AuthroizeSourceMetadata;
 import org.dante.springsecurity.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Collections;
 
@@ -31,12 +30,13 @@ import java.util.Collections;
  * @author dante
  *
  */
+@Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 	
 	private final AuthService authService;
 
-	public WebSecurityConfig(AuthService authService) {
+	public SecurityConfig(AuthService authService) {
 		this.authService = authService;
 	}
 
@@ -46,17 +46,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public AuthFilter authFilter() throws Exception {
+	public AuthFilter authFilter(AuthenticationManager authenticationManager) throws Exception {
 		AuthFilter authFilter = new AuthFilter();
-		authFilter.setAuthenticationManager(authenticationManagerBean());
+		authFilter.setAuthenticationManager(authenticationManager);
 		authFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 		return authFilter;
 	}
-	
-	@Bean(name = BeanIds.AUTHENTICATION_MANAGER)
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+
+	@Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 	
 	@Bean
@@ -86,36 +85,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	@Bean
-	public FilterSecurityInterceptor filterSecurityInterceptor() throws Exception {
+	public FilterSecurityInterceptor filterSecurityInterceptor(AuthenticationManager authenticationManager) throws Exception {
 		FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
 		filterSecurityInterceptor.setSecurityMetadataSource(securityMetadataSource());
-		filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
+		filterSecurityInterceptor.setAuthenticationManager(authenticationManager);
 		filterSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
 		filterSecurityInterceptor.setRejectPublicInvocations(false);
 		return filterSecurityInterceptor;
 	}
 	
-	@Autowired
-	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.authenticationProvider(authenticationProvider());
-	}
-	
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthFilter authFilter, FilterSecurityInterceptor filterSecurityInterceptor) throws Exception {
 		http
-			.authorizeRequests().
-				antMatchers("/favicon.ico", "/home").permitAll()
-			.antMatchers("/*").authenticated()
-			.and()
+			.csrf().disable()
+			.authorizeRequests(request -> {
+				request.requestMatchers(new AntPathRequestMatcher("/favicon.ico"), new AntPathRequestMatcher("/home")).permitAll()
+						.anyRequest().authenticated();
+			})
 			.formLogin()
 			.and()
-			.addFilterAt(authFilter(), UsernamePasswordAuthenticationFilter.class)
-			.addFilterAt(filterSecurityInterceptor(), FilterSecurityInterceptor.class);
-	}
-	
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		super.configure(web);
+			.addFilterAt(authFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterAt(filterSecurityInterceptor, FilterSecurityInterceptor.class);
+		return http.build();
 	}
 	
 }

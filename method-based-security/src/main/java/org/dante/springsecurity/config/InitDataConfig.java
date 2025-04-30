@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InitDataConfig {
 
-	private static List<UserVO> userVos;
+	private static final List<UserVO> userVos;
 	
 	public final static String PUBLIC_ACCESS = "PUBLIC_ACCESS";
 	
@@ -29,13 +29,13 @@ public class InitDataConfig {
 	static {
 		log.info("初始化用户信息......");
 		userVos = Arrays.asList(
-			new UserVO("dante", "$2a$10$mcclb9HF52oCZXI4XZERIuTl0qU/0jpFcvP7lZHH.pWSaRLKX3PXK", "super@163.com",
+			new UserVO("dante", "$2a$10$yKyh2RWtar7eUrE9O.67M.NaYA8zpr3CgbBmm7L9V4G/7Ttx.hCf2", "super@163.com",
 				Arrays.asList("足球", "编程", "音乐", "游戏"), 
 				Stream.of(AUTH_USER_ADD, AUTH_USER_DEL, AUTH_MENU_ADD, AUTH_MENU_DEL).collect(toSet())),
-			new UserVO("snake", "$2a$10$mcclb9HF52oCZXI4XZERIuTl0qU/0jpFcvP7lZHH.pWSaRLKX3PXK", "kid@163.com",
+			new UserVO("snake", "$2a$10$yKyh2RWtar7eUrE9O.67M.NaYA8zpr3CgbBmm7L9V4G/7Ttx.hCf2", "kid@163.com",
 					Arrays.asList("足球", "编程", "音乐", "游戏"), 
 					Stream.of(AUTH_USER_ADD, AUTH_USER_DEL).collect(toSet())),
-			new UserVO("youna", "$2a$10$mcclb9HF52oCZXI4XZERIuTl0qU/0jpFcvP7lZHH.pWSaRLKX3PXK", "kid@163.com",
+			new UserVO("youna", "$2a$10$yKyh2RWtar7eUrE9O.67M.NaYA8zpr3CgbBmm7L9V4G/7Ttx.hCf2", "kid@163.com",
 					Arrays.asList("足球", "编程", "音乐", "游戏"), 
 					Stream.of(AUTH_MENU_ADD, AUTH_MENU_DEL).collect(toSet()))
 		);

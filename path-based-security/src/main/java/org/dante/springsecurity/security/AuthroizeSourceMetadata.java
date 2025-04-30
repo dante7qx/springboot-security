@@ -2,6 +2,7 @@ package org.dante.springsecurity.security;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 动态权限数据源，用于获取动态权限规则
+ */
 @Slf4j
 public class AuthroizeSourceMetadata implements FilterInvocationSecurityMetadataSource {
 
@@ -26,10 +30,10 @@ public class AuthroizeSourceMetadata implements FilterInvocationSecurityMetadata
 		for(Map.Entry<MenuAuth, String> entry : menuConfigAttributes.entrySet()) {
 			MenuAuth menuAuth = entry.getKey();
 			if(new AntPathRequestMatcher(menuAuth.getPattern(), menuAuth.getMethod().name()).matches(request)) {
-				return Arrays.asList(new SecurityConfig(entry.getValue()));
+				return List.of(new SecurityConfig(entry.getValue()));
 			}
 		}
-		return Arrays.asList(new SecurityConfig(InitDataConfig.PUBLIC_ACCESS));
+		return List.of(new SecurityConfig(InitDataConfig.PUBLIC_ACCESS));
 	}
 
 	@Override

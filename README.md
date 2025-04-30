@@ -27,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 直接声明配置类，再配置一个生成`SecurityFilterChainBean`的方法，把原来的`HttpSecurity`配置移动到该方法中即可
 ```java
+// 不需要 @EnableWebSecurity，因为 @Configuration + @Bean 已经足够
 @Configuration
 public class SecurityConfig {
     @Bean

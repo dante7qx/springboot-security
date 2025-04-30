@@ -26,9 +26,11 @@ public class JWTUtil implements Serializable {
 	private String expirationTime;
 	
 	public Claims getAllClaimsFromToken(String token) {
-		return Jwts.parser().setSigningKey(Base64.getEncoder().encodeToString(secret.getBytes())).parseClaimsJws(token).getBody();
+//		return Jwts.parser().setSigningKey(Base64.getEncoder().encodeToString(secret.getBytes())).parseClaimsJws(token).getBody();
+		// TODO: 待修改
+		return null;
 	}
-	
+
 	public String getUsernameFromToken(String token) {
 		return getAllClaimsFromToken(token).getSubject();
 	}

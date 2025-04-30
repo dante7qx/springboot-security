@@ -32,6 +32,7 @@ public class SecurityConfig {
     }
      */
 
+    // 2.7 配置
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User.withUsername("dante")
@@ -41,6 +42,4 @@ public class SecurityConfig {
 
         return new InMemoryUserDetailsManager(user);
     }
-
-
 }
