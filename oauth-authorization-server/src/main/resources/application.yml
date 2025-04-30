@@ -1,13 +1,43 @@
 
 server:
   port: 8001
-  servlet:
-    context-path: /auth
 spring:
   application:
     name: auth-server
   thymeleaf:
     cache: false
-    
-    
-debug: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:authdb
+    username: sa
+    password: 1qaz2wsx
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console               # 在浏览器中访问 http://localhost:8001/h2-console
+      settings:
+        web-allow-others: true
+
+spirit:
+  redirect-uri: http://localhost:8001/login/oauth2/code/${spirit.client-id}
+  jwt-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi3BbTk5DTBVlOV9K58XnUHNoKCH59j0pLXj31JzUhZlCT1vZnPSQlvW9lJKIBlYjc5GwVVm8y/C3DwfXj9aAGZDFGKqG9hefW2Zqho1rIKVM/l0Gm7YWEKh/9syqsKQFKRhTiCgFE4OBoOmNUPzVxm3iCQMf/iFYDqb5ydWYnm/ErQP5Lj0UJwszI0J5icafEFw7l69zJL4sXJkMvpZr+tXD7J7WiDi2MQ==
+  client-id: SpiritClientId
+  client-secret: SpiritSecret
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+
