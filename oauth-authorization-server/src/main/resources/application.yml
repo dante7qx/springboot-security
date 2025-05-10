@@ -24,12 +24,6 @@ spring:
       settings:
         web-allow-others: true
 
-spirit:
-  redirect-uri: http://localhost:8001/login/oauth2/code/${spirit.client-id}
-  jwt-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi3BbTk5DTBVlOV9K58XnUHNoKCH59j0pLXj31JzUhZlCT1vZnPSQlvW9lJKIBlYjc5GwVVm8y/C3DwfXj9aAGZDFGKqG9hefW2Zqho1rIKVM/l0Gm7YWEKh/9syqsKQFKRhTiCgFE4OBoOmNUPzVxm3iCQMf/iFYDqb5ydWYnm/ErQP5Lj0UJwszI0J5icafEFw7l69zJL4sXJkMvpZr+tXD7J7WiDi2MQ==
-  client-id: SpiritClientId
-  client-secret: SpiritSecret
-
 management:
   endpoints:
     web:
@@ -38,6 +32,8 @@ management:
 
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
+    org.springframework.security: debug
+    org.springframework.security.oauth2: trace
+    org.springframework.security.web: debug
+    org.springframework.security.authentication: debug
 

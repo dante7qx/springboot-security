@@ -28,7 +28,7 @@ public class SecurityConfig {
 
     /**
      * 授权服务器的安全控制（高优先级）
-     *
+     * 授权码模式下: 资源所有者需要通过身份验证。因此，除了默认的 OAuth2 安全配置外，还必须配置用户身份验证机制, 即: AuthenticationManager
      */
     @Bean
     @Order(1)
@@ -38,8 +38,8 @@ public class SecurityConfig {
         RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
         http
             .requestMatcher(endpointsMatcher)
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
             // 对所有授权服务器端点禁用 CSRF
             .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
             .apply(authorizationServerConfigurer);
@@ -58,8 +58,13 @@ public class SecurityConfig {
             .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
             .csrf().disable()
             .authorizeRequests(request ->
-                    request.requestMatchers(new AntPathRequestMatcher("/favicon.ico"), new AntPathRequestMatcher("/h2-console/**")).permitAll()
-            .anyRequest().authenticated())
+                    request.requestMatchers(
+                            new AntPathRequestMatcher("/favicon.ico"),
+                            new AntPathRequestMatcher("/h2-console/**"),
+                            new AntPathRequestMatcher("/oauth2/jwt/*")
+                    ).permitAll()
+                    .anyRequest().authenticated()
+            )
             .formLogin(Customizer.withDefaults());
 
         return http.build();
@@ -77,11 +82,11 @@ public class SecurityConfig {
      * 身份验证实现
      */
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userService,
-                                                       PasswordEncoder passwordEncoder) {
+    public AuthenticationManager authenticationManager(UserDetailsService userService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+
         return new ProviderManager(daoAuthenticationProvider);
     }
 }
