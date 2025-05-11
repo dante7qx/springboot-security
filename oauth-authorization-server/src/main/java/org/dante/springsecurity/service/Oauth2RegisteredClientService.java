@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
@@ -28,7 +28,7 @@ import java.util.UUID;
  *   1. 存储 OAuth2 客户端信息（如 client_id、client_secret）
  *   2. 检索已注册的客户端（用于身份验证）
  */
-@Service
+@Repository
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class Oauth2RegisteredClientService implements RegisteredClientRepository {
@@ -100,8 +100,8 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
         // 授权类型
         grantTypeDAO.deleteByClientId(entity.getId());
         entity.getGrantTypes().clear();
-        client.getAuthorizationGrantTypes().forEach(authGrant ->
-            entity.getGrantTypes().add(Oauth2ClientGrantType.from(entity, authGrant))
+        client.getAuthorizationGrantTypes().forEach(grantType ->
+            entity.getGrantTypes().add(Oauth2ClientGrantType.from(entity, grantType))
         );
 
         // 回调Uri
@@ -177,7 +177,7 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
         String clientId2 = "private-key-client";
         if (clientDAO.findByClientId(clientId2).isEmpty()) {
             this.save(privateKeyClient(clientId2));
-            keypairService.generateKeypair(clientId2);  // 生成密钥对
+            keypairService.generateKeypair(clientId2);  // 生成密钥对（耗时操作）
         }
     }
 
