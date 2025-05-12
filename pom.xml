@@ -24,8 +24,8 @@
 		<module>path-based-security</module>
 		<module>method-based-security</module>
 		<module>oauth-authorization-server</module>
+		<module>oauth-resource-server</module>
 		<!--
-		<module>oauth-resource-server1</module>
 		<module>oauth-client-authorization-code</module>
 		-->
 		<module>session-redis</module>

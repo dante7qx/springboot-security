@@ -34,7 +34,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * JWK Endpoint 公开 — ClientSetting 中的 jwkSetUrl
+ * 自定义 jwkSet Endpoint（一般不需要自定义）
+ * 需要显示的替换 AuthorizationServerSettings 的 jwkSetEndpoint。并配置允许匿名访问
  */
 @RestController
 @RequestMapping("/oauth2")

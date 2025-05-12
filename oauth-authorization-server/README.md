@@ -320,37 +320,8 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
         );
     }
    ```
-   </details><br>
-- **自定义`JwkSetUrl`**
-  <br>
-   <details>
-     <summary>Oauth2JwkController.java</summary>
-   
-   ```java
-   @RestController
-   @RequestMapping("/oauth2")
-   @RequiredArgsConstructor
-   public class Oauth2JwkController {
-        @GetMapping("/jwks.json")
-        public Map<String, Object> getJwks() {
-            List<JWK> jwks = keypairDAO.findValidKeys(Instant.now()).stream()
-                .map(k -> {
-                    try {
-                        RSAPublicKey publicKey = KeyGeneratorUtil.parsePublicKey(k.getPublicKeyPem());
-                        return new RSAKey.Builder(publicKey)
-                                .keyID(k.getKeyId())
-                                .algorithm(JWSAlgorithm.RS256)
-                                .build(); // 注意：只构建公钥 JWK，不设置 .privateKey()
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList());
-            JWKSet jwkSet = new JWKSet(jwks);
-            return jwkSet.toJSONObject();
-        }
-   }
-   ```
    </details>
+
 4. **配置授权服务器**
    <br>
    <details>
@@ -436,6 +407,21 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
    }
    ```
    </details>
+
+6. **注意要点**
+    - 密钥必须带有标记
+    ```markdown
+    -----BEGIN PUBLIC KEY-----
+    <你的PublicKey>
+    -----END PUBLIC KEY-----
+    -----BEGIN PRIVATE KEY-----
+    <你的PrivateKey>
+    -----END PRIVATE KEY-----
+    ```
+    - Jwt 要显示指定 type、Alg、keyId
+    - 客户端要显示指定 `tokenEndpointAuthenticationSigningAlgorithm`
+
+
 ### 二. 资源服务器
 **Spring OAuth2 Resource Server**
 

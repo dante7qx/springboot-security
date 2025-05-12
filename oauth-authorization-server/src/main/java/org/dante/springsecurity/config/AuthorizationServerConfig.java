@@ -93,7 +93,7 @@ public class AuthorizationServerConfig {
                 .issuer("http://localhost:8001")
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")
-                .jwkSetEndpoint("/oauth2/jwks.json")    // 同 clientSettings 下的 jwkSetUrl
+                .jwkSetEndpoint("/oauth2/jwks")    // 同 clientSettings 下的 jwkSetUrl
                 .build();
     }
 

@@ -32,8 +32,8 @@ management:
 
 logging:
   level:
-    org.springframework.security: debug
-    org.springframework.security.oauth2: trace
-    org.springframework.security.web: debug
-    org.springframework.security.authentication: debug
+    org.springframework.security: info
+    org.springframework.security.oauth2: debug
+    org.springframework.security.web: info
+    org.springframework.security.authentication: info
 

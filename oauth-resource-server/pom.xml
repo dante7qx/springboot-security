@@ -4,10 +4,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>oauth-resource-server1</artifactId>
+	<artifactId>oauth-resource-server</artifactId>
 	<packaging>jar</packaging>
-	<name>oauth-resource-server1</name>
-	<description>资源服务器1</description>
+	<name>oauth-resource-server</name>
+	<description>OAuth2 资源服务器</description>
 
 	<parent>
 		<groupId>org.dante.springsecurity</groupId>
@@ -17,13 +17,12 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.security.oauth.boot</groupId>
-			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
-			<version>${oauth2-autoconfig.version}</version>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-resource-server</artifactId>
+			<artifactId>spring-security-oauth2-jose</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -32,6 +31,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
