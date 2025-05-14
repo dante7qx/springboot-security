@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <title>主页 - OAuth2 客户端示例</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3>欢迎，<span th:text="${userName}">用户</span>！</h3>
+        </div>
+        <div class="card-body">
+          <h4>用户信息：</h4>
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>属性</th>
+              <th>值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="attr : ${userAttributes}">
+              <td th:text="${attr.key}">属性名</td>
+              <td th:text="${attr.value}">属性值</td>
+            </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-4">
+            <h4>操作：</h4>
+            <div class="d-flex gap-2">
+              <a class="btn btn-success" href="/client/resource">访问受保护的资源</a>
+              <form th:action="@{/client/logout}" method="post">
+                <button class="btn btn-danger" type="submit">登出</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

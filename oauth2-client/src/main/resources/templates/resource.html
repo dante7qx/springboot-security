@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>资源 - OAuth2 客户端示例</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>资源服务器响应</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h4>API响应内容：</h4>
+                        <pre th:text="${resourceResponse}">资源内容</pre>
+                    </div>
+
+                    <div class="mt-4">
+                        <a class="btn btn-primary" href="/client/home">返回首页</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

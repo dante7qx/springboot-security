@@ -1,0 +1,41 @@
+
+server:
+  port: 8001
+spring:
+  application:
+    name: auth-server
+  thymeleaf:
+    cache: false
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:authdb
+    username: sa
+    password: 1qaz2wsx
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console               # 在浏览器中访问 http://localhost:8001/h2-console
+      settings:
+        web-allow-others: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    org.springframework.security: info
+    org.springframework.security.oauth2: trace
+    org.springframework.security.web: info
+    org.springframework.security.authentication: info
+
+spirit:
+  client-base-url: "http://localhost:8003/client"

@@ -1,0 +1,16 @@
+server:
+  port: 8002
+spring:
+  thymeleaf:
+    cache: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:  # 使用您的授权服务器的JWK Set URI
+          issuer-uri: http://localhost:8001
+          jwk-set-uri: http://localhost:8001/oauth2/jwks
+
+logging:
+  level:
+    org.springframework.security: info
+    org.springframework.security.oauth2: debug

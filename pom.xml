@@ -23,11 +23,9 @@
 		<module>jdbc-authentication</module>
 		<module>path-based-security</module>
 		<module>method-based-security</module>
-		<module>oauth-authorization-server</module>
-		<module>oauth-resource-server</module>
-		<!--
-		<module>oauth-client-authorization-code</module>
-		-->
+		<module>oauth2-authorization-server</module>
+		<module>oauth2-resource-server</module>
+		<module>oauth2-client</module>
 		<module>session-redis</module>
 		<module>webflux-jwt</module>
 	</modules>
