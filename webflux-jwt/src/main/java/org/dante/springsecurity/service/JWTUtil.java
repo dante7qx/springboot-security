@@ -1,22 +1,23 @@
 package org.dante.springsecurity.service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.dante.springsecurity.model.User;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dante.springsecurity.model.User;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
 @Component
 public class JWTUtil implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	@Value("${webflux-jwt.jjwt.secret}")
@@ -26,9 +27,11 @@ public class JWTUtil implements Serializable {
 	private String expirationTime;
 	
 	public Claims getAllClaimsFromToken(String token) {
-//		return Jwts.parser().setSigningKey(Base64.getEncoder().encodeToString(secret.getBytes())).parseClaimsJws(token).getBody();
-		// TODO: 待修改
-		return null;
+		return Jwts.parser()
+				.verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 	}
 
 	public String getUsernameFromToken(String token) {
@@ -51,16 +54,16 @@ public class JWTUtil implements Serializable {
 	}
 
 	private String doGenerateToken(Map<String, Object> claims, String username) {
-		Long expirationTimeLong = Long.parseLong(expirationTime); //in second
+		long expirationTimeLong = Long.parseLong(expirationTime); //in second
 		
 		final Date createdDate = new Date();
 		final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 		return Jwts.builder()
-				.setClaims(claims)
-				.setSubject(username)
-				.setIssuedAt(createdDate)
-				.setExpiration(expirationDate)
-				.signWith(SignatureAlgorithm.HS512, Base64.getEncoder().encodeToString(secret.getBytes()))
+                .claims(claims)
+					.subject(username)
+					.issuedAt(createdDate)
+					.expiration(expirationDate)
+					.signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret)), Jwts.SIG.HS512)
 				.compact();
 	}
 	

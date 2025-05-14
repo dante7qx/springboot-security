@@ -25,7 +25,7 @@ public class WebSecurityConfig {
 	private SecurityContextRepository securityContextRepository;
 	
 	@Bean
-	public SecurityWebFilterChain securitygWebFilterChain(ServerHttpSecurity http) {
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		return http
 			.exceptionHandling()
 			.authenticationEntryPoint((swe, e) -> {

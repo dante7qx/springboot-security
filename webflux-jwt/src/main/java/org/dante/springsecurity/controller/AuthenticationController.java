@@ -1,5 +1,6 @@
 package org.dante.springsecurity.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.dante.springsecurity.model.AuthRequest;
 import org.dante.springsecurity.model.AuthResponse;
 import org.dante.springsecurity.security.PBKDF2Encoder;
@@ -15,16 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
+@RequiredArgsConstructor
 public class AuthenticationController {
 
-	@Autowired
-	private JWTUtil jwtUtil;
-
-	@Autowired
-	private PBKDF2Encoder passwordEncoder;
-
-	@Autowired
-	private UserService userRepository;
+	private final JWTUtil jwtUtil;
+	private final PBKDF2Encoder passwordEncoder;
+	private final UserService userRepository;
 
 	@PostMapping("/auth/login")
 	public Mono<ResponseEntity<?>> login(@RequestBody AuthRequest ar) {

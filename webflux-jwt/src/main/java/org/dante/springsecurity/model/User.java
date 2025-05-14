@@ -1,5 +1,6 @@
 package org.dante.springsecurity.model;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class User implements UserDetails {
 
+	@Serial
 	private static final long serialVersionUID = 7343807023477838329L;
 
 	private String username;
