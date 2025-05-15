@@ -34,7 +34,10 @@
           <div class="mt-4">
             <h4>操作：</h4>
             <div class="d-flex gap-2">
-              <a class="btn btn-success" href="/client/resource">访问受保护的资源</a>
+              <!--
+              <a class="btn btn-success" href="/client/resource/${userAttributes['registrationId']}" >访问受保护的资源</a>
+              -->
+              <a class="btn btn-success" th:href="@{/resource/{registrationId}(registrationId=${userAttributes['registrationId']})}" >访问受保护的资源</a>
               <form th:action="@{/logout}" method="post">
                 <button class="btn btn-danger" type="submit">登出</button>
               </form>

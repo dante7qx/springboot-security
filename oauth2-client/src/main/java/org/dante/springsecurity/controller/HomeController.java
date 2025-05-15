@@ -41,12 +41,27 @@ public class HomeController {
         return "home";
     }
 
-    @GetMapping("/resource")
-    public String getResource(@RegisteredOAuth2AuthorizedClient("secret-basic-client") OAuth2AuthorizedClient authorizedClient, Model model) {
+    @GetMapping("/resource/secret-basic-client/")
+    public String getSpiritResource(@RegisteredOAuth2AuthorizedClient("secret-basic-client") OAuth2AuthorizedClient authorizedClient, Model model) {
         // 使用访问令牌调用资源服务器
         String resourceResponse = webClient
                 .get()
                 .uri(spiritClientProp.getResourceServerUrl()+ "/api/book/200") // 资源服务器的API地址
+                .attributes(oauth2AuthorizedClient(authorizedClient))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        model.addAttribute("resourceResponse", resourceResponse);
+        return "resource";
+    }
+
+    @GetMapping("/resource/github")
+    public String getGithubResource(@RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient authorizedClient, Model model) {
+        // 使用访问令牌调用资源服务器
+        String resourceResponse = webClient
+                .get()
+                .uri("https://api.github.com/users/dante7qx/repos") // 资源服务器的API地址
                 .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve()
                 .bodyToMono(String.class)
