@@ -1,5 +1,6 @@
 package org.dante.springsecurity.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.dante.springsecurity.dao.UserDAO;
 import org.dante.springsecurity.entity.SysUser;
@@ -10,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -26,13 +26,13 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void initUsers() {
         if (!userDAO.existsByUsername("admin")) {
-            createUser("admin", "1qa@2ws", "admin@example.com", "ADMIN");
+            createUser("admin", "123@qwe", "admin@example.com", "ADMIN");
         }
         if (!userDAO.existsByUsername("snake")) {
-            createUser("user", "1qa@2ws", "user@example.com", "USER");
+            createUser("user", "123@qwe", "user@example.com", "USER");
         }
         if (!userDAO.existsByUsername("dante")) {
-            createUser("dante", "iamdante", "dante@example.com", "USER");
+            createUser("dante", "123@qwe", "dante@example.com", "USER");
         }
     }
 

@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletRequest;
 import org.dante.springsecurity.dao.Oauth2ClientKeypairDAO;
 import org.dante.springsecurity.entity.Oauth2ClientKeypair;
 import org.dante.springsecurity.security.KeyGeneratorUtil;
@@ -19,13 +20,13 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.token.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -120,14 +121,27 @@ public class JwkConfig {
     }
 
     /**
-     * 统一异常响应
+     * 在 OAuth2 授权服务器生成 JWT 格式的访问令牌时，向令牌中添加自定义声明 (custom claims)
      */
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
-            if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
+            Console.log("==================> OAuth2TokenCustomizer  被调用，Token 类型 {}", context.getTokenType());
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
                 // 添加自定义声明或处理逻辑
-                Console.log("==================>{}", context.getJwsHeader().toString());
+                context.getClaims().claims(claims -> {
+
+                    // 添加用户基本信息
+
+                    // 添加业务信息
+
+                    // 添加权限信息
+
+                    // 添加系统信息
+                    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+                    String clientIp = request.getRemoteAddr();
+                    claims.put("client_ip", clientIp);
+                });
             }
         };
     }

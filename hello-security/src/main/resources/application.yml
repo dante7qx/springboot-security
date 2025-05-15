@@ -3,13 +3,3 @@ server:
 spring:
   thymeleaf:
     cache: false
-  mvc:
-    pathmatch:
-      matching-strategy: ant-path-matcher
-      
-## 5.3.20版本漏洞：https://forum.butian.net/share/2199
-
-## 当使用 spring.mvc.pathmatch.matching-strategy = path-pattern-parser 时，
-## http.authorizeRequests().mvcMatchers("admin/**").authenticated(); 会绕过了设置的Spring security规则。
-##
-## 但默认的 spring.mvc.pathmatch.matching-strategy = ant_path_matcher，无法绕过设置的Spring security规则。

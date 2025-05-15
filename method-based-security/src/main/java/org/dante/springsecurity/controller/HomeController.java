@@ -10,5 +10,4 @@ public class HomeController {
 	public String home() {
 		return "登录成功，欢迎来到首页！";
 	}
-
 }

@@ -2,53 +2,56 @@ package org.dante.springsecurity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Spring Security5 必须要指定一个 PasswordEncoder
- *
- * @author dante
- */
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     /**
-    // 2.5 配置
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .inMemoryAuthentication()
-            .withUser("dante")
-            .password("$2a$10$G4Io4382I2d9yXqn0mFf.uU8ObvYw4L9X/JLgsUTu/sG3/gGfQG/u")
-            .roles("USER");
-    }
+     * 默认算法是 bcrypt
      */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .antMatchers("/api/public/**").permitAll()   // 公开端点
-                .antMatchers("/api/**").authenticated()  // 需要认证的端点
-            );
+                .requestMatchers("/css/**", "/js/**").permitAll()     // 静态资源
+                .requestMatchers("/api/public/**").permitAll()          // 公开端点
+                .requestMatchers("/api/**").authenticated()             // 需要认证的端点
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")    // 指定登录页
+                .defaultSuccessUrl("/")
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
+            )
+            .csrf(Customizer.withDefaults()); // 启用CSRF保护
+
         return http.build();
     }
 
-    // 2.7 配置
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User.withUsername("dante")
-                .password("$2a$10$G4Io4382I2d9yXqn0mFf.uU8ObvYw4L9X/JLgsUTu/sG3/gGfQG/u")
+                .password("{bcrypt}$2a$10$s0Ta/mltqMGKzSNnpPGBqOyGtNtz4khC/N4r4NBtGwoF7i5xxSOTu")
                 .roles("USER")
                 .build();
 

@@ -8,6 +8,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,21 +31,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-            .csrf().disable()
-            .authorizeRequests(request ->
-                    request.requestMatchers(
-                            new AntPathRequestMatcher("/favicon.ico"),
-                            new AntPathRequestMatcher("/h2-console/**"),
-                            new AntPathRequestMatcher("/oauth2/jwt/*"),
-                            new AntPathRequestMatcher("/oauth2_client/register")
-                    ).permitAll()
-                    .anyRequest().authenticated()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/favicon.ico", "/css/**", "/js/**", "/h2-console/**").permitAll()
+                .requestMatchers("/oauth2/jwt/*", "/oauth2_client/register").permitAll()
+                .anyRequest().authenticated()
             )
-            .formLogin(Customizer.withDefaults());
+            .formLogin(form -> form
+                .loginPage("/login")    // 指定登录页
+                .defaultSuccessUrl("/")
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/h2-console/**")
+            );
 
         return http.build();
     }
-
 
     /**
      * 身份验证实现
@@ -54,7 +61,6 @@ public class SecurityConfig {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-
         return new ProviderManager(daoAuthenticationProvider);
     }
 }

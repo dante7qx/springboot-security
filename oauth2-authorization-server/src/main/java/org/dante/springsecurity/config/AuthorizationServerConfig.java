@@ -15,6 +15,7 @@ import org.dante.springsecurity.security.KeyGeneratorUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -54,26 +55,24 @@ public class AuthorizationServerConfig {
         // 获取所有OAuth2授权服务器端点的匹配器
         RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
         http
-                .requestMatcher(endpointsMatcher)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
-                // 对所有授权服务器端点禁用 CSRF
-                .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-                .apply(authorizationServerConfigurer);
-
+            .securityMatcher(endpointsMatcher)
+            .with(authorizationServerConfigurer, asConfig -> {})
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+            .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher)); // 对所有授权服务器端点禁用 CSRF
         return http.build();
     }
 
-    /**
+    /*
      * 管理客户端Repo - 保存于数据库中
      * Oauth2RegisteredClientService 已实现 RegisteredClientRepository 接口，无需重复定义 Bean。
-      */
+     */
 
     /**
      * 授权服务器Endpoint设置 (必配置项)
-     *
+     * <p>
      * 定义 OAuth 2.0 授权服务器的各种端点 URL 和服务器相关设置
-     *
+     * <p>
      * 配置项	                            默认值	                            说明
      * issuer	                            null	                        颁发者URI (RFC 8414)
      * authorizationEndpoint	            /oauth2/authorize	            授权

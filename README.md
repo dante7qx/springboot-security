@@ -1,117 +1,76 @@
 ## Springboot + SpringSecurity
 
-从 `Springboot 2.5` 升级到 `Springboot 2.7`，`Spring Security` 方面有一些重要的变化，特别是在配置方式和默认行为上。
+从 `Springboot 2.7` 升级到 `Springboot 3.4`，`Spring Security` 方面有一些重要的变化，特别是在配置方式和默认行为上。
 
 
-### 1. WebSecurityConfigurerAdapter 被弃用
+### 1. 主要架构变化
 
-在 `Spring Boot 2.7`（对应 `Spring Security 5.7`）中，`WebSecurityConfigurerAdapter`被正式弃用，推荐使用`SecurityFilterChain`进行配置：
+- Spring Security 6 迁移到了 Jakarta EE 9+ 命名空间（jakarta.servlet 替代 javax.servlet）
 
-- 2.5 版本
+- Spring Boot 3.x 需要 Java 17 或更高版本
 
-继承`WebSecurityConfigurerAdapter`并重写`configure(HttpSecurity http)`方法
+### 2. antMatchers() 改为 requestMatchers()
 ```java
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-            .antMatchers("/public").permitAll()
-            .anyRequest().authenticated();
-    }
-}
+// 旧方式
+http.authorizeRequests().antMatchers("/public/**").permitAll();
+
+// 新方式
+http.authorizeHttpRequests(auth -> auth.requestMatchers("/public/**").permitAll());
 ```
 
-- 2.7 版本
+### 3. 密码编码
 
-直接声明配置类，再配置一个生成`SecurityFilterChainBean`的方法，把原来的`HttpSecurity`配置移动到该方法中即可
+- NoOpPasswordEncoder 完全移除：不再支持明文密码存储
+
+- 推荐使用 PasswordEncoder 的现代实现
 ```java
-// 不需要 @EnableWebSecurity，因为 @Configuration + @Bean 已经足够
-@Configuration
-public class SecurityConfig {
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/public").permitAll()
-            .anyRequest().authenticated());
-        return http.build();
-    }
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 }
 ```
+- 密码编码格式
+```java
+// {编码器ID}编码后的密码
+{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
+{pbkdf2}5d923b44a6d129f3ddf3e3c8d29412723dcbde72445e8ef6bf3b508fbf17fa4ed4d6b
+```
 
-### 2. `PasswordEncoder`默认实现变化
+### 4. CSRF 保护
+- 默认情况下 CSRF 保护对 /logout 禁用：需要显式配置
+```java
+// 忽略特定路径
+http.csrf(csrf -> csrf.ignoringRequestMatchers("/custom-logout"));
 
-- 2.5 版本
+// 禁用 csrf
+http.csrf(AbstractHttpConfigurer::disable)
 
-默认使用 NoOpPasswordEncoder（不推荐）
-
-- 2.7 版本
-
-推荐使用 BCryptPasswordEncoder，并且 NoOpPasswordEncoder 需要手动配置
+// 启用CSRF保护（默认已启用）
+http.csrf(Customizer.withDefaults());
+```
+- 所有 POST 请求（包括登录）需要包含 CSRF token
     
-### 3. `AuthenticationManager`配置方式变化
+    - Thymeleaf 自动处理
+    - 纯HTML需要手动添加 
+  
+      `<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>`
 
-在 Spring Boot 2.7 之后，AuthenticationManager 不能直接通过 WebSecurityConfigurerAdapter 获取，而是需要手动定义
+### 5. 不再自动生成默认登录页
 
+- 需要显式配置
 ```java
-@Bean
-public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    return authenticationConfiguration.getAuthenticationManager();
-}
+http
+    .formLogin(form -> form
+    .loginPage("/login")    // 指定登录页
+        .defaultSuccessUrl("/")
+        .failureUrl("/login?error=true")
+        .permitAll()
+    )
+    .logout(logout -> logout
+        .logoutSuccessUrl("/login?logout=true")
+        .permitAll()
+            
+    )
 ```
 
-### 3. DSL 语法
-
-`Spring Boot 2.7` 采用更简洁的 `DSL` 语法，减少了冗余代码。
-
-### 4. 默认开启 CSRF 保护
-
-在`·Spring Boot 2.7` 中，如果你引入了 Spring Security，它默认开启 CSRF 防护。
-
-(1) POST、PUT、DELETE、PATCH 等 非 GET/HEAD/OPTIONS/TRACE 请求 都需要带上有效的 CSRF token。
-
-(2) 如果前端请求中没有携带正确的 CSRF token，Spring Security 会返回 403 Forbidden。
-
-- 关闭 CSRF
-```java
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf().disable() // 关闭CSRF保护
-        .authorizeRequests()
-            .anyRequest().authenticated()
-        .and()
-        .formLogin(); // 开启表单登录
-    return http.build();
-}
-```
-
-- 正确使用 CSRF Token（前后端交互）
-
-1. 如果是表单提交（<form>），`Spring Security` 会自动在表单中插入隐藏的 `CSRF token`。
-
-2. 如果是前后端分离，比如用 AJAX/axios/fetch 发送请求，需要做两件事：
-
-    - 后端需要把 CSRF token 以某种方式（比如 cookie）暴露给前端。
-    - 前端需要在每个需要保护的请求（比如 POST）中带上 token，通常在 X-CSRF-TOKEN 请求头里。
-
-- 自定义 CSRF 配置（比如只对部分接口禁用）
-```java
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf
-            .ignoringRequestMatchers("/api/**") // 忽略CSRF保护的路径
-        )
-        .authorizeRequests()
-            .anyRequest().authenticated()
-        .and()
-        .formLogin();
-    return http.build();
-}
-```
-
-### 参考资料
-
-- https://www.cnblogs.com/Chary/p/18026736
+- 自定义`login.html`

@@ -1,11 +1,11 @@
 package org.dante.springsecurity.entity;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
 

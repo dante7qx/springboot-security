@@ -61,7 +61,7 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
 <parent>
      <groupId>org.springframework.boot</groupId>
      <artifactId>spring-boot-starter-parent</artifactId>
-     <version>2.7.18</version>
+     <version>3.4.5</version>
      <relativePath/> <!-- lookup parent from repository -->
 </parent>
 <dependency>
@@ -72,7 +72,7 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
 <dependency>
    <groupId>org.springframework.security</groupId>
    <artifactId>spring-security-oauth2-authorization-server</artifactId>
-   <version>0.4.5</version>
+   <version>1.4.3</version>
 </dependency>
 ```
 
@@ -331,18 +331,17 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
    @Configuration
    public class AuthorizationServerConfig {
       @Bean
-      @Order(1) // 高优先级
+      @Order(1)
       public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
           OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
           // 获取所有OAuth2授权服务器端点的匹配器
           RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
           http
-              .requestMatcher(endpointsMatcher)
-              .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-              .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
-              // 对所有授权服务器端点禁用 CSRF
-              .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-              .apply(authorizationServerConfigurer);
+             .securityMatcher(endpointsMatcher)
+             .with(authorizationServerConfigurer, asConfig -> {})
+             .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+             .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+             .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher)); // 对所有授权服务器端点禁用 CSRF
           return http.build();
       }
    
@@ -378,19 +377,27 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
        @Bean
        @Order(2)    // 优先级低于授权服务器
        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-           http
-               .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-               .csrf().disable()
-               .authorizeRequests(request ->
-                       request.requestMatchers(
-                               new AntPathRequestMatcher("/favicon.ico"),
-                               new AntPathRequestMatcher("/h2-console/**"),
-                               new AntPathRequestMatcher("/oauth2/jwt/*")
-                       ).permitAll()
-                       .anyRequest().authenticated()
-               )
-               .formLogin(Customizer.withDefaults());
-           return http.build();
+            http
+                .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/favicon.ico", "/css/**", "/js/**", "/h2-console/**").permitAll()
+                    .requestMatchers("/oauth2/jwt/*", "/oauth2_client/register").permitAll()
+                    .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                    .loginPage("/login")    // 指定登录页
+                    .defaultSuccessUrl("/")
+                    .failureUrl("/login?error=true")
+                    .permitAll()
+                )
+                .logout(logout -> logout
+                    .logoutSuccessUrl("/login?logout=true")
+                    .permitAll()
+                )
+                .csrf(csrf -> csrf
+                    .ignoringRequestMatchers("/h2-console/**")
+                );
+            return http.build();
        }
    
        /**

@@ -1,5 +1,6 @@
 package org.dante.springsecurity.security;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import lombok.Data;
 @Data
 public class AuthUser implements UserDetails {
 	
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	private UserVO user;
@@ -32,7 +34,7 @@ public class AuthUser implements UserDetails {
 		Set<String> authoritys = this.user.getAuthCodes();
 		if (!CollectionUtils.isEmpty(authoritys)) {
 			authoritys.add(InitDataConfig.PUBLIC_ACCESS);
-			return AuthorityUtils.createAuthorityList(authoritys.toArray(new String[authoritys.size()]));
+			return AuthorityUtils.createAuthorityList(authoritys.toArray(new String[0]));
 		}
 		return null;
 	}

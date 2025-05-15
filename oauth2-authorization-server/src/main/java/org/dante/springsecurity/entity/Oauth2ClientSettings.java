@@ -1,6 +1,7 @@
 package org.dante.springsecurity.entity;
 
 import cn.hutool.core.util.StrUtil;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -8,7 +9,6 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
 
