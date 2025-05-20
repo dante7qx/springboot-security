@@ -10,6 +10,7 @@ import org.dante.springsecurity.prop.AuthorizationProp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -40,6 +40,7 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
     private final Oauth2ClientGrantTypeDAO grantTypeDAO;
     private final Oauth2ClientRedirectUriDAO redirectUriDAO;
     private final Oauth2ClientScopeDAO scopeDAO;
+    private final Oauth2ClientPostLogoutRedirectUriDAO logoutRedirectUriDAO;
     private final Oauth2ClientTokenSettingsDAO tokenSettingsDAO;
     private final Oauth2ClientSettingDAO settingDAO;
     private final Oauth2ClientKeypairService keypairService;
@@ -121,6 +122,13 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
             entity.getScopes().add(Oauth2ClientScope.from(entity, scope))
         );
 
+        // oidc logout 回调 Uri
+        logoutRedirectUriDAO.deleteByClientId(entity.getId());
+        entity.getLogoutRedirectUris().clear();
+        client.getPostLogoutRedirectUris().forEach(redirectUri ->
+            entity.getLogoutRedirectUris().add(Oauth2ClientPostLogoutRedirectUri.from(entity, redirectUri))
+        );
+
         // Token 设置
         tokenSettingsDAO.deleteByClientId(entity.getId());
         entity.setTokenSettings(Oauth2ClientTokenSettings.from(entity, client.getTokenSettings()));
@@ -162,6 +170,7 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
         entity.getGrantTypes().forEach(grantType -> builder.authorizationGrantType(grantType.toGrantType()));
         entity.getRedirectUris().forEach(uri -> builder.redirectUri(uri.getRedirectUri()));
         entity.getScopes().forEach(scope -> builder.scope(scope.getScope()));
+        entity.getLogoutRedirectUris().forEach(uri -> builder.postLogoutRedirectUri(uri.getLogoutRedirectUri()));
         builder.tokenSettings(entity.getTokenSettings().toTokenSettings());
         builder.clientSettings(entity.getClientSettings().toClientSettings());
         return builder.build();
@@ -209,7 +218,14 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
                         .build())
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri(authProp.getClientBaseUrl() + "/login/oauth2/code/" + clientId)
-                .scopes(scopes -> {scopes.addAll(Set.of("api.book.read", "api.book.write"));})
+                .postLogoutRedirectUri("http://localhost:8003/client/logout-success")
+                .scopes(scopes -> {
+                    scopes.add(OidcScopes.OPENID);   // 核心 scope, 表明这是一个 OIDC 请求
+                    scopes.add(OidcScopes.PROFILE);
+                    scopes.add(OidcScopes.EMAIL);
+                    scopes.add("api.book.read");
+                    scopes.add("api.book.write");
+                })
                 .build();
     }
 
@@ -240,6 +256,7 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
                         .tokenEndpointAuthenticationSigningAlgorithm(SignatureAlgorithm.RS256)  // 必须显式声明签名算法
                         .build())
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+//                .scope(OidcScopes.OPENID)
                 .scope("api.book.read")
                 .scope("api.book.write")
                 .build();

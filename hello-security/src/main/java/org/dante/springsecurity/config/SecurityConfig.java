@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -40,6 +39,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
+//                .logoutUrl("/customer_logout")                // 自定义注销，/logout 是 Spring Security 框架自带的，一般来说不需要自定义
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )

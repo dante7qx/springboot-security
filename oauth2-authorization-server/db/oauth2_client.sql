@@ -74,9 +74,17 @@ create table oauth2_client_keypair
     expires_at                                      date             -- 密钥过期时间
 );
 
+-- 9. oidc logout 回调 uri
+create table oauth2_client_post_logout_redirect_uri
+(
+    id           varchar(36) primary key,
+    client_id    varchar(36)  not null,
+    logout_redirect_uri varchar(500) not null
+);
+
 -- TODO: 以下表待具体实现
 
--- 9. 资源服务器
+-- 10. 资源服务器
 create table oauth2_resource_server
 (
     id                                              varchar(36) primary key,
@@ -85,7 +93,7 @@ create table oauth2_resource_server
     remark                                          varchar(1024)
 );
 
--- 10. 资源服务器 scope
+-- 11. 资源服务器 scope
 create table oauth2_resource_server_scope
 (
     id                                              varchar(36) primary key,
@@ -94,7 +102,7 @@ create table oauth2_resource_server_scope
     scope_desc                                      varchar(128)
 );
 
--- 10. 资源服务器 client - scope 映射
+-- 12. 资源服务器 client - scope 映射
 create table oauth2_resource_server_client_scope
 (
     id                                              varchar(36) primary key,

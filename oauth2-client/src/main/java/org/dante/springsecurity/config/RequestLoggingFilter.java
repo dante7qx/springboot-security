@@ -14,7 +14,7 @@ import java.util.Enumeration;
 /**
  * 用于调试
  */
-@Component
+//@Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class RequestLoggingFilter extends OncePerRequestFilter {

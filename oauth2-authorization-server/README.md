@@ -52,6 +52,66 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
    - 支持FAPI(Financial-grade API)安全配置文件
    - 提供全面的审计日志功能
 
+**OpenID Connect（OIDC）**
+
+1. 身份认证协议: 
+
+- OpenID：主要提供用户身份认证功能，允许用户使用一个身份标识登录多个网站。
+
+- OIDC：在OpenID的基础上增加了身份信息交换功能，除了认证用户身份，还可以获取用户的身份信息（如姓名、邮箱等）。
+
+在OAuth 2.0基础上增加了身份验证功能，用于确认用户身份并提供基本的用户信息。引入了身份令牌（ID Token），包含用户身份信息，采用JWT格式。
+
+2. 主要使用场景: 
+
+- 需要用户身份认证的场景，如单点登录（SSO），用户登录一次即可访问多个应用
+
+- 需要获取用户基本信息的场景，如社交登录，用户使用社交账号登录第三方应用。
+
+3. 功能实现
+
+（1）启用 OIDC  (AuthorizationServerConfig)
+
+（2）配置 Issuer URI  (AuthorizationServerSettings)
+
+（3）自定义 ID Token 的声明 (OAuth2TokenCustomizer)
+
+（4）实现 UserInfo Endpoint (@RestController)
+
+（5）确保 JWKS URI 可用并包含签名密钥 (JWKSource bean)
+
+（6）实现 OIDC RP-Initiated Logout
+
+（7）确保客户端注册时包含 openid scope (RegisteredClient)
+
+<details>
+  <summary>（8）功能代码 </summary>
+
+```java
+// (1) 配置 Issuer URI 和 OIDC 端点 (AuthorizationServerSettings)
+// 配置 Issuer URI
+AuthorizationServerSettings.builder().issuer("http://localhost:8001")    // 发布后需要设置公网地址
+// 启用 OIDC
+http.with(authorizationServerConfigurer, authorizationServer -> {
+    authorizationServer.oidc(Customizer.withDefaults());
+})
+
+// (7) 注册客户端时，设置scope: OidcScopes.OPENID  
+scope(OidcScopes.OPENID)
+// (3)、(4)、(5) 查看对应的代码
+```
+```java
+// OIDC RP-Initiated Logout
+/*
+ RP-Initiated Logout 是 OpenID Connect 的一种注销机制，允许客户端应用（Relying Party，简称 RP）通知授权服务器（Identity Provider，简称 IdP）注销用户的会话。
+ 用户在客户端应用中点击“登出”时，确保授权服务器的登录会话也被注销，而不仅仅是 RP 本地的登录状态清除。
+ */
+// 客户端需要配置 provider.issuer-uri、OidcClientInitiatedLogoutSuccessHandler
+
+```
+</details>
+
+
 #### 2. 功能实现
 
 [代码地址](https://github.com/dante7qx/springboot-security/tree/2.7.x)
@@ -528,6 +588,8 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
     (3) JwtEncoder 会通过你配置的 JWKSource<SecurityContext> 获取密钥对来签名 JWT；
     
     因此，每次发 token 时都会调用你注册的 jwkSource bean。jwkSource bean 中需要缓存优化处理。
+
+#### 3. 增加 OIDC（OpenID Connect） 支持
 
 ### 二. 资源服务器
 

@@ -15,8 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
-    open-in-view: false
+    show-sql: false
   h2:
     console:
       enabled: true
@@ -32,10 +31,10 @@ management:
 
 logging:
   level:
-    org.springframework.security: info
+    org.springframework.security: debug
     org.springframework.security.oauth2: trace
-    org.springframework.security.web: info
-    org.springframework.security.authentication: info
+    org.springframework.security.web: debug
+    org.springframework.security.authentication: debug
 
 spirit:
   client-base-url: "http://localhost:8003/client"

@@ -1,11 +1,11 @@
 package org.dante.springsecurity.controller;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.dante.springsecurity.prop.SpiritClientProp;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -20,11 +20,18 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 public class HomeController {
 
     private final WebClient webClient;
-    private final OAuth2AuthorizedClientService authorizedClientService;
     private final SpiritClientProp spiritClientProp;
 
     @GetMapping("/")
     public String index() {
+        return "index";
+    }
+
+    /**
+     * 注销返回首页
+     */
+    @GetMapping("/logout-success")
+    public String logoutSuccess() {
         return "index";
     }
 
@@ -35,8 +42,8 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(@AuthenticationPrincipal OAuth2User principal, Model model) {
-        Console.log("================================================> 授权登录成功！");
-        model.addAttribute("userName", principal.getAttribute("name"));
+        Console.log("=====> {} 授权登录成功！", principal.getName());
+        model.addAttribute("userName", StrUtil.isNotEmpty(principal.getAttribute("nickname")) ? principal.getAttribute("nickname") : principal.getName() );
         model.addAttribute("userAttributes", principal.getAttributes());
         return "home";
     }
@@ -62,6 +69,21 @@ public class HomeController {
         String resourceResponse = webClient
                 .get()
                 .uri("https://api.github.com/users/dante7qx/repos") // 资源服务器的API地址
+                .attributes(oauth2AuthorizedClient(authorizedClient))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        model.addAttribute("resourceResponse", resourceResponse);
+        return "resource";
+    }
+
+    @GetMapping("/resource/gitee")
+    public String getGiteeResource(@RegisteredOAuth2AuthorizedClient("gitee") OAuth2AuthorizedClient authorizedClient, Model model) {
+        // 使用访问令牌调用资源服务器
+        String resourceResponse = webClient
+                .get()
+                .uri("https://gitee.com/api/v5/user/repos") // 资源服务器的API地址
                 .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve()
                 .bodyToMono(String.class)

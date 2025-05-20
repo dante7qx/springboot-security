@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +17,9 @@ import java.util.stream.Collectors;
 @Data
 public class SysUser implements UserDetails {
 
+    @Serial
+    private static final long serialVersionUID = 7221392560419394625L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +28,13 @@ public class SysUser implements UserDetails {
     private String username;
 
     @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = true)
+    private String phone;
 
     @Column(nullable = false)
     private String email;

@@ -13,9 +13,59 @@
 		<h1 class="display-4">OAuth2 客户端示例</h1>
 		<p class="lead">这是一个演示OAuth2客户端登录和访问资源的示例应用程序。</p>
 		<hr class="my-4"/>
-		<p>点击下面的按钮使用OAuth2登录并访问受保护的资源。</p>
-		<a class="btn btn-primary btn-lg" href="/client/login" role="button">登录</a>
+	</div>
+	<div class="card">
+		<div class="card-header">
+			<p class="lead">Github 和 微信 SSO 时，需要启动外网地址，运行 cpolar http 8003</p>
+		</div>
+		<div class="card-body">
+			<div class="alert alert-danger" th:if="${param.error}">
+				登录失败，请重试。
+			</div>
+			<div class="grid">
+				<button type="button" class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Spirit登录">
+					<a th:href="@{/oauth2/authorization/secret-basic-client}" >
+						<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="36" height="36" viewBox="0,0,256,256"
+							 style="fill:#000000;">
+							<g fill="#000000" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M25,2c-12.7,0 -23,10.3 -23,23c0,12.7 10.3,23 23,23c12.7,0 23,-10.3 23,-23c0,-12.7 -10.3,-23 -23,-23zM19,35c0,0.5 -0.5,1 -1,1h-4c-0.5,0 -1,-0.5 -1,-1v-15c0,-0.5 0.5,-1 1,-1h4c0.5,0 1,0.5 1,1zM16,18c-1.6,0 -3,-1.4 -3,-3c0,-1.6 1.4,-3 3,-3c1.6,0 3,1.4 3,3c0,1.6 -1.4,3 -3,3zM38,35c0,0.5 -0.5,1 -1,1h-4c-0.5,0 -1,-0.5 -1,-1v-7.5c0,-1.4 -1.1,-2.5 -2.5,-2.5c-1.4,0 -2.5,1.1 -2.5,2.5v7.5c0,0.5 -0.5,1 -1,1h-4c-0.5,0 -1,-0.5 -1,-1v-15c0,-0.5 0.5,-1 1,-1h4c0.5,0 1,0.4 1,1c1.1,-0.6 2.2,-1 3.5,-1c4.1,0 7.5,3.4 7.5,7.5z"></path></g></g>
+						</svg>
+					</a>
+				</button>
+				<button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Github登录">
+					<a th:href="@{/oauth2/authorization/github}">
+						<svg width="36" height="36" aria-hidden="true" viewBox="0 0 24 24" version="1.1"  data-view-component="true" class="octicon octicon-mark-github v-align-middle">
+							<path d="M12 1C5.9225 1 1 5.9225 1 12C1 16.8675 4.14875 20.9787 8.52125 22.4362C9.07125 22.5325 9.2775 22.2025 9.2775 21.9137C9.2775 21.6525 9.26375 20.7862 9.26375 19.865C6.5 20.3737 5.785 19.1912 5.565 18.5725C5.44125 18.2562 4.905 17.28 4.4375 17.0187C4.0525 16.8125 3.5025 16.3037 4.42375 16.29C5.29 16.2762 5.90875 17.0875 6.115 17.4175C7.105 19.0812 8.68625 18.6137 9.31875 18.325C9.415 17.61 9.70375 17.1287 10.02 16.8537C7.5725 16.5787 5.015 15.63 5.015 11.4225C5.015 10.2262 5.44125 9.23625 6.1425 8.46625C6.0325 8.19125 5.6475 7.06375 6.2525 5.55125C6.2525 5.55125 7.17375 5.2625 9.2775 6.67875C10.1575 6.43125 11.0925 6.3075 12.0275 6.3075C12.9625 6.3075 13.8975 6.43125 14.7775 6.67875C16.8813 5.24875 17.8025 5.55125 17.8025 5.55125C18.4075 7.06375 18.0225 8.19125 17.9125 8.46625C18.6138 9.23625 19.04 10.2125 19.04 11.4225C19.04 15.6437 16.4688 16.5787 14.0213 16.8537C14.42 17.1975 14.7638 17.8575 14.7638 18.8887C14.7638 20.36 14.75 21.5425 14.75 21.9137C14.75 22.2025 14.9563 22.5462 15.5063 22.4362C19.8513 20.9787 23 16.8537 23 12C23 5.9225 18.0775 1 12 1Z"></path>
+						</svg>
+					</a>
+				</button>
+				<button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Gitee登录">
+					<a th:href="@{/oauth2/authorization/gitee}">
+						<img th:src="@{/img/gitee.png}" alt="gitee" width="36" height="36" />
+					</a>
+				</button>
+				<button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Google登录">
+					<a th:href="@{/oauth2/authorization/google}">
+						<svg width="36" height="36" viewBox="-3 0 262 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid"><path d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027" fill="#4285F4"/><path d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1" fill="#34A853"/><path d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782" fill="#FBBC05"/><path d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251" fill="#EB4335"/></svg>
+					</a>
+				</button>
+				<button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="微信登录" disabled>
+					<svg width="36" height="36" fill="none" viewBox="0 0 24 24" class="ZDI ZDI--Wechat24"><path fill="#07C160" d="M20.314 18.59c1.333-.968 2.186-2.397 2.186-3.986 0-2.91-2.833-5.27-6.325-5.27-3.494 0-6.325 2.36-6.325 5.27 0 2.911 2.831 5.271 6.325 5.271.698.001 1.393-.096 2.064-.288l.186-.029c.122 0 .232.038.336.097l1.386.8.12.04a.21.21 0 0 0 .212-.211l-.034-.154-.285-1.063-.023-.135a.42.42 0 0 1 .177-.343ZM9.09 3.513C4.9 3.514 1.5 6.346 1.5 9.84c0 1.905 1.022 3.622 2.622 4.781a.505.505 0 0 1 .213.412l-.026.16-.343 1.276-.04.185c0 .14.113.254.252.254l.146-.047 1.663-.96a.793.793 0 0 1 .403-.116l.222.032c.806.231 1.64.348 2.478.348l.417-.01a4.888 4.888 0 0 1-.255-1.55c0-3.186 3.1-5.77 6.923-5.77l.411.011c-.57-3.02-3.71-5.332-7.494-5.332Zm4.976 10.248a.843.843 0 1 1 0-1.685.843.843 0 0 1 0 1.684v.001Zm4.217 0a.843.843 0 1 1 0-1.685.843.843 0 0 1 0 1.684v.001ZM6.561 8.827a1.012 1.012 0 1 1 0-2.023 1.012 1.012 0 0 1 0 2.023Zm5.061 0a1.012 1.012 0 1 1 0-2.023 1.012 1.012 0 0 1 0 2.023Z" clip-rule="evenodd"></path></svg>
+				</button>
+				<button class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Apple登录" disabled>
+					<img th:src="@{/img/apple.svg}" alt="apple" width="36" height="36" />
+				</button>
+			</div>
+		</div>
 	</div>
 </div>
+
+<script th:src="@{/js/popper.min.js}" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script th:src="@{/js/bootstrap.min.js}" integrity="sha384-RuyvpeZCxMJCqVUGFI0Do1mQrods/hhxYlcVfGPOfQtPJh0JCw12tUAZ/Mv10S7D" crossorigin="anonymous"></script>
+<script>
+	window.onload = function () {
+		const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+		const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+	}
+</script>
 </body>
 </html>

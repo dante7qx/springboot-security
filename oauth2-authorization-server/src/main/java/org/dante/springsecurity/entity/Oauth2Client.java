@@ -18,8 +18,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "oauth2_client")
 @Data
-@ToString(exclude = {"authMethods", "grantTypes", "redirectUris", "scopes", "tokenSettings", "clientSettings"})
-@EqualsAndHashCode(exclude = {"authMethods", "grantTypes", "redirectUris", "scopes", "tokenSettings", "clientSettings"})
+@ToString(exclude = {"authMethods", "grantTypes", "redirectUris", "logoutRedirectUris", "scopes", "tokenSettings", "clientSettings"})
+@EqualsAndHashCode(exclude = {"authMethods", "grantTypes", "redirectUris", "logoutRedirectUris", "scopes", "tokenSettings", "clientSettings"})
 public class Oauth2Client implements Serializable {
 
     @Id
@@ -44,6 +44,9 @@ public class Oauth2Client implements Serializable {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Oauth2ClientRedirectUri> redirectUris = new HashSet<>();
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Oauth2ClientPostLogoutRedirectUri> logoutRedirectUris = new HashSet<>();
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Oauth2ClientScope> scopes = new HashSet<>();
