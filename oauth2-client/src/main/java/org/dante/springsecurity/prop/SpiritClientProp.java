@@ -32,6 +32,7 @@ public class SpiritClientProp {
 
     /** 资源服务器地址 */
     private String resourceServerUrl;
+
 }
 
 

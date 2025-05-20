@@ -36,3 +36,5 @@ hs_err_pid*
 .idea/
 *.iml
 
+# secret data
+application-secret.yml

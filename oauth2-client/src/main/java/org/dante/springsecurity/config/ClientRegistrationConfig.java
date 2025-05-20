@@ -2,6 +2,7 @@ package org.dante.springsecurity.config;
 
 import lombok.RequiredArgsConstructor;
 import org.dante.springsecurity.prop.SpiritClientProp;
+import org.dante.springsecurity.prop.ThirdClientProp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
@@ -12,12 +13,14 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import reactor.core.publisher.Flux;
 
 @Configuration
 @RequiredArgsConstructor
 public class ClientRegistrationConfig {
 
     private final SpiritClientProp clientProp;
+    private final ThirdClientProp thirdClientProp;
 
     /**
      * 懒加载 OIDC discovery
@@ -56,8 +59,8 @@ public class ClientRegistrationConfig {
     private ClientRegistration githubClientRegistration() {
         return ClientRegistration.withRegistrationId("github")
                 .clientName("Github 登录")
-                .clientId("2a072c55d48f194676f7")
-                .clientSecret("c816673448d997ca8adda06418c689ac8fe513cb")
+                .clientId(thirdClientProp.getGithub().getClientId())
+                .clientSecret(thirdClientProp.getGithub().getClientSecret())
                 .scope("public_repo", "read:user", "user:email")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("https://6ca39297.r21.cpolar.top/client/login/oauth2/code/{registrationId}")
@@ -71,8 +74,8 @@ public class ClientRegistrationConfig {
     private ClientRegistration giteeClientRegistration() {
         return ClientRegistration.withRegistrationId("gitee")
                 .clientName("Gitee 登录")
-                .clientId("168ef86abab1300b44b36b9858484c89980a8919434c1958f5c60a860867cf81")
-                .clientSecret("b0b21c4ff73c5db0b483d60779e03127b54cd93661e3e78e3f4e1479b74374ee")
+                .clientId(thirdClientProp.getGitee().getClientId())
+                .clientSecret(thirdClientProp.getGitee().getClientSecret())
                 .scope("user_info", "projects")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("https://6ca39297.r21.cpolar.top/client/login/oauth2/code/{registrationId}")
@@ -86,8 +89,8 @@ public class ClientRegistrationConfig {
     private ClientRegistration googleClientRegistration() {
         return ClientRegistration.withRegistrationId("google")
                 .clientName("Google 登录")
-                .clientId("563132197681-1torjlvhl24tu66oqtf40qp115kvp9ct.apps.googleusercontent.com")
-                .clientSecret("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")
+                .clientId(thirdClientProp.getGoogle().getClientId())
+                .clientSecret(thirdClientProp.getGoogle().getClientSecret())
                 .scope("openid", "profile", "email")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("https://6ca39297.r21.cpolar.top/client/login/oauth2/code/{registrationId}")
