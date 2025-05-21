@@ -6,6 +6,7 @@ import org.dante.springsecurity.service.OidcUserInfoService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
@@ -49,8 +50,8 @@ public class AuthorizationServerConfig {
                     )
                     // 自定义处理 oidcLogoutEndpoint （不推荐，应使用 Spring内部实现, 即注释掉下面这行 ）
 //                    .logoutEndpoint(logout -> logout.logoutResponseHandler(new SpiritOidcLogoutHandler()))
-//                    .Customizer.withDefaults()
-            ))
+                )
+            )
             .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
             .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
             .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher)); // 对所有授权服务器端点禁用 CSRF
@@ -91,7 +92,7 @@ public class AuthorizationServerConfig {
 //                .authorizationEndpoint("/oauth2/authorize")
 //                .tokenEndpoint("/oauth2/token")
 //                .jwkSetEndpoint("/oauth2/jwks")
-                .oidcLogoutEndpoint("/connect/logout")  // 需要自定义 Endpoint 的处理逻辑
+                .oidcLogoutEndpoint("/connect/logout")
                 .build();
     }
 

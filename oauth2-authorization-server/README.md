@@ -1,4 +1,4 @@
-## Spring OAuth2 授权、资源服务器
+## Spring OAuth2 授权服务器
 
 | 功能          | 资源服务器                                        | 授权服务器                                     |
 |-------------|----------------------------------------------|-------------------------------------------|
@@ -6,12 +6,11 @@
 | 依赖关系        | 依赖授权服务器提供令牌验证支持（如公钥）                         | 独立运行，提供令牌签发和验证端点（如 /oauth2/token）         |
 | 典型实现        | `Spring Security + oauth2-resource-server`   | `Spring Authorization Server`、`Keycloak`、`Okta` |
 
-### 一. 授权服务器
-
-#### 1. 概述
+### 一. 概述
 OAuth2是一种授权框架，允许第三方应用获取对用户账户的有限访问权限，而无需获取用户的凭证。授权服务器是OAuth2体系中的核心组件，负责验证用户身份并颁发访问令牌。
 
-**OAuth2授权服务器核心功能**
+**核心功能**
+
 1. 用户认证：验证资源所有者(用户)的身份
 2. 颁发授权码和访问令牌：根据不同的授权流程生成相应的令牌
 3. 管理客户端应用注册：维护可信任的第三方应用列表
@@ -20,7 +19,7 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
 
 **Spring OAuth2 Authorization Server**
 
-**Spring Authorization Server**是Spring生态系统中专门用于构建`OAuth2.0`和`OpenID Connect 1.0`授权服务器的框架。
+Spring生态系统中专门用于构建`OAuth2.0`和`OpenID Connect 1.0`授权服务器的框架。
 
 1. `OAuth2`核心规范支持
    - 完整支持`OAuth2.0`框架(RFC6749)
@@ -29,8 +28,8 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
 
 2. `OpenID Connect`支持
    - 支持`OpenID Connect Core 1.0`
-   - 支持ID令牌、用户信息端点
-   - 支持标准声明集
+   - 支持IdToken、UserInfo Endpoint
+   - 支持标准 Claims
 
 3. 安全增强
    - 支持`PKCE(Proof Key for Code Exchange)`增强授权码流程安全性
@@ -54,7 +53,7 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
 
 **OpenID Connect（OIDC）**
 
-1. 身份认证协议: 
+1. 身份认证协议
 
 - OpenID：主要提供用户身份认证功能，允许用户使用一个身份标识登录多个网站。
 
@@ -62,57 +61,14 @@ OAuth2是一种授权框架，允许第三方应用获取对用户账户的有�
 
 在OAuth 2.0基础上增加了身份验证功能，用于确认用户身份并提供基本的用户信息。引入了身份令牌（ID Token），包含用户身份信息，采用JWT格式。
 
-2. 主要使用场景: 
+2. 主要使用场景
 
 - 需要用户身份认证的场景，如单点登录（SSO），用户登录一次即可访问多个应用
 
 - 需要获取用户基本信息的场景，如社交登录，用户使用社交账号登录第三方应用。
 
-3. 功能实现
 
-（1）启用 OIDC  (AuthorizationServerConfig)
-
-（2）配置 Issuer URI  (AuthorizationServerSettings)
-
-（3）自定义 ID Token 的声明 (OAuth2TokenCustomizer)
-
-（4）实现 UserInfo Endpoint (@RestController)
-
-（5）确保 JWKS URI 可用并包含签名密钥 (JWKSource bean)
-
-（6）实现 OIDC RP-Initiated Logout
-
-（7）确保客户端注册时包含 openid scope (RegisteredClient)
-
-<details>
-  <summary>（8）功能代码 </summary>
-
-```java
-// (1) 配置 Issuer URI 和 OIDC 端点 (AuthorizationServerSettings)
-// 配置 Issuer URI
-AuthorizationServerSettings.builder().issuer("http://localhost:8001")    // 发布后需要设置公网地址
-// 启用 OIDC
-http.with(authorizationServerConfigurer, authorizationServer -> {
-    authorizationServer.oidc(Customizer.withDefaults());
-})
-
-// (7) 注册客户端时，设置scope: OidcScopes.OPENID  
-scope(OidcScopes.OPENID)
-// (3)、(4)、(5) 查看对应的代码
-```
-```java
-// OIDC RP-Initiated Logout
-/*
- RP-Initiated Logout 是 OpenID Connect 的一种注销机制，允许客户端应用（Relying Party，简称 RP）通知授权服务器（Identity Provider，简称 IdP）注销用户的会话。
- 用户在客户端应用中点击“登出”时，确保授权服务器的登录会话也被注销，而不仅仅是 RP 本地的登录状态清除。
- */
-// 客户端需要配置 provider.issuer-uri、OidcClientInitiatedLogoutSuccessHandler
-
-```
-</details>
-
-
-#### 2. 功能实现
+### 二. 功能实现
 
 [代码地址](https://github.com/dante7qx/springboot-security/tree/2.7.x)
 
@@ -308,7 +264,7 @@ scope(OidcScopes.OPENID)
   <br>
    <details>
      <summary>JwkConfig.java</summary>
-   
+  
   ```java
     @Bean
     public JWKSource<SecurityContext> jwkSource(Oauth2ClientKeypairDAO keypairDAO) {
@@ -342,7 +298,7 @@ scope(OidcScopes.OPENID)
             }
         };
     }
-
+  
     /**
      * JWT 编码器
      * 将 JWT 的内容（Claims）和头部（Header）信息组合起来，并使用指定的加密算法进行签名，最终生成可用的 JWT 字符串
@@ -356,7 +312,7 @@ scope(OidcScopes.OPENID)
             return delegate.encode(parameters);
         };
     }
-
+  
     /**
      * JWT 解码器
      * 1. 授权服务器: 仅在授权服务器内部使用 JWT（如生成访问令牌）, 不需要 JWT 解码器
@@ -379,7 +335,7 @@ scope(OidcScopes.OPENID)
                 refreshTokenGenerator
         );
     }
-   ```
+  ```
    </details>
 
 4. **配置授权服务器**
@@ -556,7 +512,7 @@ scope(OidcScopes.OPENID)
 8. **客户端自动续期**
 
 - 对于授权码模式，正确流程: 
-    
+  
     (1) 用户访问客户端发起授权请求
     
     (2) 浏览器跳转到授权服务器，登录并授权
@@ -568,7 +524,7 @@ scope(OidcScopes.OPENID)
     (5) 获得 access_token 和 refresh_token
     
 - 如需再次获取 token，请使用 refresh_token
-    
+  
     (1) 开启 refresh token 支持`authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)`
     
     (2) 在 token 过期前用 refresh_token 请求新的 token
@@ -589,24 +545,120 @@ scope(OidcScopes.OPENID)
     
     因此，每次发 token 时都会调用你注册的 jwkSource bean。jwkSource bean 中需要缓存优化处理。
 
-#### 3. 增加 OIDC（OpenID Connect） 支持
+### 三. OIDC（OpenID Connect）
 
-### 二. 资源服务器
+（1）启用 OIDC  (AuthorizationServerConfig)
 
-资源服务器（Resource Server）是指能够提供受保护资源，并且可以接受和处理带有访问令牌（Access Token）的请求的服务器。
-简单来说，一旦资源所有者授权了第三方客户端应用访问其资源，客户端就可以通过携带有效的访问令牌来向资源服务器发起请求，以访问这些受保护的资源。
+（2）配置 Issuer URI  (AuthorizationServerSettings)
 
-- **验证访问令牌**：
+```java
+AuthorizationServerSettings.builder().issuer("http://localhost:8001")    // 发布后需要设置公网地址
+```
 
-    资源服务器需要有能力验证客户端提供的访问令牌的有效性。这通常涉及到检查令牌签名、过期时间、颁发者信息等。
+（3）自定义 ID Token 的声明 (OAuth2TokenCustomizer)
 
-- **权限控制**：
+（4）实现 UserInfo Endpoint (UserInfoMapper)
 
-    基于访问令牌中包含的范围（scopes）或者其它声明信息，资源服务器决定是否允许请求访问特定的资源。
+```java
+.oidc(oidc -> oidc
+          .userInfoEndpoint((userInfo) -> userInfo
+              .userInfoMapper(userInfoMapper())
+))
+```
 
-- **与授权服务器协作**：
+（5）确保 JWKS URI 可用并包含签名密钥 (JWKSource bean)
 
-    虽然资源服务器负责保护资源并验证访问令牌，但它通常依赖于授权服务器（Authorization Server）来生成这些令牌。某些情况下，资源服务器可能会直接集成授权服务器的功能，但在更常见的情况下，这两者是分离的。
+（7）确保客户端注册时包含 openid scope (RegisteredClient)
+
+```java
+scope(OidcScopes.OPENID)
+```
+
+### 四. 单点登出 SLO
+
+对于用户注销，有三种场景需要考虑
+
+- 本地注销
+- 应用 RP 发起注销，同时注销应用程序和 `OIDC Provider`
+- `OIDC Provider`，发起注销，同时注销应用程序和 `OIDC Provider`
+
+#### 1. RP-Initiated Logout
+
+RP-Initiated Logout 是 OpenID Connect (OIDC) 定义的一种客户端（Relying Party，简称 RP）主动发起注销的机制，适用于用户点击“退出登录”时，希望用户在 RP 和授权服务器（Identity Provider, IdP）两侧都完成会话清理的场景。
+
+**作用**
+
+- **由客户端（RP）主动发起**：用户通过客户端的界面（如“退出登录”按钮）触发注销流程。
+- **基于前端通信**：通过浏览器重定向（前端通道）通知身份提供商（IdP）和其他相关客户端注销会话。
+- **依赖用户代理（浏览器）**：通过前端跳转传递注销请求和状态。
+
+**适用场景**
+
+- **多系统登录联动**
+  - 用户通过 IdP 登录多个系统（即多个 RP）
+  - 当用户在某个 RP 中点击退出，期望注销所有系统会话
+  - 如涉及支付、个人隐私、企业后台等，需要确保用户退出后，所有会话都被清除
+- **单点登录（SSO）体系中的一环，SSO 中，登录和退出都应被统一管理**
+
+**优点**
+
+- **统一会话管理**：客户端发起注销请求可显式通知 IdP 清除会话
+- **用户体验良好**：从 RP 发起跳转，不依赖用户手动去 IdP 页面
+- **符合现代架构设计**： 适合前后端分离、微服务架构
+- **标准化**：符合 OIDC 标准，可与多种 IdP 兼容
+
+**缺点**
+
+- **无法通知其他 RP**：仅注销当前 RP 和 IdP 之间的会话，不能自动通知其他 RP
+- **依赖前端跳转**：是前端重定向实现，不适用于无 UI 场景
+- **需要客户端显式配置**：要求注册 `post_logout_redirect_uri`，安全策略较严格
+
+**功能实现**
+
+- **IdP 端**
+
+```java
+// 1. 开启 OIDC 支持（包括 AS 配置和注册客户端的 scope = openid）
+// 2. 注册客户端中，设置 postLogoutRedirectUri("<和客户端中保持一致>")
+```
+
+- **RP 端**
+
+```java
+// 1. 设置 issuer-uri
+// 2. 配置 OidcClientInitiatedLogoutSuccessHandler
+.logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler())
+        
+private LogoutSuccessHandler oidcLogoutSuccessHandler() {
+		OidcClientInitiatedLogoutSuccessHandler oidcHandler =
+                new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        oidcHandler.setPostLogoutRedirectUri("{baseUrl}/logout-success");
+  	return (request, response, authentication) -> {
+            if (authentication instanceof OAuth2AuthenticationToken oauth2Token) {
+                String registrationId = oauth2Token.getAuthorizedClientRegistrationId();
+
+                // 不支持 OIDC, 进行本地注销操作
+                if ("github".equals(registrationId) || "gitee".equals(registrationId)) {
+                    // GitHub 不支持 OIDC logout，仅清理 session
+                    request.logout();
+                    response.sendRedirect("/client"); // 或跳转到登录页
+                    return;
+                }
+
+                // OIDC 处理（本地 AS）
+                oidcHandler.onLogoutSuccess(request, response, authentication);
+            } else {
+                // 非 OAuth2 登录，默认登出处理
+                response.sendRedirect("/");
+            }
+        };
+}
+        
+// 3. 开放 /logout-success
+.requestMatchers("/logout-success").permitAll()
+```
+
+#### 2. Back-Channel Logout
 
 
 

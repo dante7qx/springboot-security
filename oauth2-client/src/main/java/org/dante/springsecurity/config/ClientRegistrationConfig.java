@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -38,21 +39,24 @@ public class ClientRegistrationConfig {
     }
 
     private ClientRegistration spiritClientRegistration() {
-        ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(clientProp.getClientId())
-                .clientId(clientProp.getClientId())
+        ClientRegistration.Builder builder = null;
+        if (clientProp.getEnableIssuer()) {
+            // Spring 自动识别 OIDC
+            builder = ClientRegistrations.fromIssuerLocation(clientProp.getAuthServerUrl());
+        } else {
+            // authorizationUri、tokenUri、jwkSetUri 必须进行设置
+            builder = ClientRegistration.withRegistrationId(clientProp.getClientId())
+                    .authorizationUri(clientProp.getAuthServerUrl() + "/oauth2/authorize")
+                    .tokenUri(clientProp.getAuthServerUrl() + "/oauth2/token")
+                    .jwkSetUri(clientProp.getAuthServerUrl() + "/oauth2/jwks");
+        }
+        builder.clientId(clientProp.getClientId())
                 .clientSecret(clientProp.getClientSecret())
                 .clientName(clientProp.getClientName())
                 .authorizationGrantType(new AuthorizationGrantType(clientProp.getAuthorizationGrantType()))
                 .redirectUri(clientProp.getRedirectUri())
                 .clientAuthenticationMethod(new ClientAuthenticationMethod(clientProp.getClientAuthenticationMethod()))
                 .scope(clientProp.getScope());
-        if (clientProp.getEnableIssuer()) {
-            builder.issuerUri(clientProp.getAuthServerUrl());
-        } else {
-            builder.authorizationUri(clientProp.getAuthServerUrl() + "/oauth2/authorize")
-                    .tokenUri(clientProp.getAuthServerUrl() + "/oauth2/token")
-                    .jwkSetUri(clientProp.getAuthServerUrl() + "/oauth2/jwks");
-        }
         return builder.build();
     }
 

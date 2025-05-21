@@ -3,13 +3,8 @@ package org.dante.springsecurity.config;
 import cn.hutool.core.lang.Console;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.dante.springsecurity.service.OidcUserInfoService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -17,8 +12,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.token.*;
-
-import java.util.Set;
 
 @Configuration
 public class JwtTokenConfig {
@@ -79,36 +72,20 @@ public class JwtTokenConfig {
      * 在 OAuth2 授权服务器生成 JWT 格式的访问令牌时，向令牌中添加自定义声明 (custom claims)
      */
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(OidcUserInfoService userInfoService) {
+    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
-
             String tokenType = context.getTokenType().getValue();
             Console.log("==================> OAuth2TokenCustomizer  被调用，Token 类型 {}", tokenType);
-
-            Authentication principal = context.getPrincipal();
-            Set<String> requestedScopes = context.getAuthorizedScopes();
-
-            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-                Console.log("==================> 自定义 ACCESS_TOKEN 被调用");
-
-                if (principal instanceof UsernamePasswordAuthenticationToken auth) {
-                    UserDetails user = (UserDetails) auth.getPrincipal();
-                    context.getClaims().claims(claims -> {
-                        claims.put("name", user.getUsername());
-                        claims.put("roles", user.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .toList());
-                        // 添加更多字段
-                    });
+            context.getClaims().claims(claims -> {
+                // 这里可以完全设置 /userinfo 下的所有 claim 信息
+                claims.put("ASFlag", "spirit");
+                claims.put("ASVersion", "1.4.3");
+                if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType()) || OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())) {
+                    claims.put("ASAuthType", "OAuth2");
+                } else if (OidcParameterNames.ID_TOKEN.equals(tokenType)) {
+                    claims.put("ASAuthType", "OIDC");
                 }
-            } else if (OidcParameterNames.ID_TOKEN.equals(tokenType)) {
-                Console.log("==================> 自定义 ID_TOKEN 被调用");
-                context.getClaims().claims(claims -> {
-                    // 这里可以完全设置 /userinfo 下的所有 claim 信息
-                    claims.put("asFlag", "spirit");
-                    claims.put("asVersion", "1.4.3");
-                });
-            }
+            });
         };
     }
 
