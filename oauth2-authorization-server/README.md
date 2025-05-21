@@ -660,7 +660,7 @@ private LogoutSuccessHandler oidcLogoutSuccessHandler() {
 
 #### 2. Back-Channel Logout
 
-
+当前版本1.4.3，此功能还不可用，等待未来版本支持。
 
 
 ### 三. 大型系统设计

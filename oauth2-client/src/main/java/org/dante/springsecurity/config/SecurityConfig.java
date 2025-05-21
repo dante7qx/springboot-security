@@ -3,6 +3,7 @@ package org.dante.springsecurity.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedCli
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
 @RequiredArgsConstructor
@@ -39,6 +41,9 @@ public class SecurityConfig {
                     .userService(oAuth2UserService)
                     .oidcUserService(oidcUserService)
                 )
+            )
+            .oidcLogout((logout) -> logout
+                .backChannel(Customizer.withDefaults())         // Back-Channel Logout
             )
             .logout(logout -> logout
                 .logoutSuccessHandler(oidcLogoutSuccessHandler())   // Client-Initiated Logout
@@ -66,7 +71,7 @@ public class SecurityConfig {
     }
 
     /**
-     * 单点登出 SLO
+     * Client-Initiated Logout
      * 设置一个 Location, 在用户（End-User）的客户端在身份提供方（授权服务器、身份认证服务器）完成注销操作后，将被重定向到这个位置
      * 在OAuth 2.0/OpenID Connect的注销流程中，这个参数通常叫post_logout_redirect_uri
      */
@@ -101,6 +106,11 @@ public class SecurityConfig {
                 response.sendRedirect("/");
             }
         };
+    }
+
+    @Bean
+    public HttpSessionEventPublisher sessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 
 }

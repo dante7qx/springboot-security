@@ -48,7 +48,9 @@ create table oauth2_client_settings
     require_proof_key                               boolean default false,
     require_authorization_consent                   boolean default false,
     jwk_set_url                                     varchar(500),
-    token_endpoint_authentication_signing_algorithm varchar(50)
+    token_endpoint_authentication_signing_algorithm varchar(50),
+    backchannel_logout_uri                          varchar(500),
+    backchannel_logout_session_required             boolean default false,
 );
 
 -- 7. Token设置表

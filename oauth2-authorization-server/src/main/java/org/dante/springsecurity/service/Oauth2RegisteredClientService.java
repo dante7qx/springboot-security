@@ -215,10 +215,13 @@ public class Oauth2RegisteredClientService implements RegisteredClientRepository
                         .build())
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(true)                      // 用户授权确认
+                        // BackChannel Logout 当前版本不可用
+                        .setting("backchannel_logout_uri", authProp.getClientBaseUrl() + "/backchannel-logout")
+                        .setting("backchannel_logout_session_required", true)
                         .build())
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri(authProp.getClientBaseUrl() + "/login/oauth2/code/" + clientId)
-                .postLogoutRedirectUri("http://localhost:8003/client/logout-success")
+                .postLogoutRedirectUri(authProp.getClientBaseUrl() + "/logout-success")
                 .scopes(scopes -> {
                     scopes.add(OidcScopes.OPENID);   // 核心 scope, 表明这是一个 OIDC 请求
                     scopes.add(OidcScopes.PROFILE);

@@ -4,6 +4,6 @@ server:
     context-path: /client
 spring:
   profiles:
-    active: dev
+    active: secret
   thymeleaf:
     cache: false

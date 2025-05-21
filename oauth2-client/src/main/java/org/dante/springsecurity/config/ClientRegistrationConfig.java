@@ -42,7 +42,8 @@ public class ClientRegistrationConfig {
         ClientRegistration.Builder builder = null;
         if (clientProp.getEnableIssuer()) {
             // Spring 自动识别 OIDC
-            builder = ClientRegistrations.fromIssuerLocation(clientProp.getAuthServerUrl());
+            builder = ClientRegistrations.fromIssuerLocation(clientProp.getAuthServerUrl())
+                    .registrationId(clientProp.getClientId());
         } else {
             // authorizationUri、tokenUri、jwkSetUri 必须进行设置
             builder = ClientRegistration.withRegistrationId(clientProp.getClientId())

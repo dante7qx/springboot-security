@@ -23,6 +23,9 @@ import java.util.UUID;
 @EqualsAndHashCode(exclude = "client")
 public class Oauth2ClientSettings implements Serializable {
 
+    public static final String BACKCHANNEL_LOGOUT_URI = "backchannel_logout_uri";
+    public static final String BACKCHANNEL_LOGOUT_SESSION_REQUIRED = "backchannel_logout_session_required";
+
     @Id
     private String id;
     @OneToOne
@@ -38,6 +41,12 @@ public class Oauth2ClientSettings implements Serializable {
     @Column(name = "token_endpoint_authentication_signing_algorithm")
     private String tokenEndpointAuthSignAlg;
 
+    @Column(name = "backchannel_logout_uri")
+    private String backChannelLogoutUri;
+
+    @Column(name = "backchannel_logout_session_required")
+    private Boolean backChannelLogoutSessionRequired = Boolean.FALSE;
+
     public Oauth2ClientSettings() {
         this.id = UUID.randomUUID().toString();
     }
@@ -52,6 +61,10 @@ public class Oauth2ClientSettings implements Serializable {
         if(StrUtil.isNotEmpty(this.tokenEndpointAuthSignAlg)) {
             builder.tokenEndpointAuthenticationSigningAlgorithm(SignatureAlgorithm.from(this.tokenEndpointAuthSignAlg));
         }
+        if(StrUtil.isNotEmpty(this.backChannelLogoutUri)) {
+            builder.setting("backchannel_logout_uri", this.backChannelLogoutUri);
+        }
+        builder.setting("backchannel_logout_session_required", this.backChannelLogoutSessionRequired);
         return builder.build();
     }
 
@@ -65,6 +78,11 @@ public class Oauth2ClientSettings implements Serializable {
         if (algo != null) {
             entity.setTokenEndpointAuthSignAlg(algo.getName());
         }
+        if(StrUtil.isNotEmpty(settings.getSetting(BACKCHANNEL_LOGOUT_URI))) {
+            entity.setBackChannelLogoutUri(settings.getSetting(BACKCHANNEL_LOGOUT_URI));
+        }
+        entity.setBackChannelLogoutSessionRequired(settings.getSetting(BACKCHANNEL_LOGOUT_SESSION_REQUIRED));
+
         return entity;
     }
 

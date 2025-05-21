@@ -54,7 +54,8 @@ public class AuthorizationServerConfig {
             )
             .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
             .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
-            .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher)); // 对所有授权服务器端点禁用 CSRF
+            .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher));   // 对所有授权服务器端点禁用 CSRF
+
         return http.build();
     }
 
@@ -108,6 +109,5 @@ public class AuthorizationServerConfig {
             return userInfoService.loadUser(principal);
         };
     }
-
 
 }
