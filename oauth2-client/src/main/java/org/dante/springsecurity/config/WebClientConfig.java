@@ -1,7 +1,9 @@
 package org.dante.springsecurity.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,13 +14,24 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
+    @Value("${alipay.alipay-gateway}")
+    private String alipayBaseUrl;
+
     @Bean
+    @Primary
     public WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
         ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
                 new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 
         return WebClient.builder()
                 .apply(oauth2Client.oauth2Configuration())  // 应用OAuth2配置
+                .build();
+    }
+
+    @Bean("alipayWebClient")
+    public WebClient alipayWebClient() {
+        return WebClient.builder()
+                .baseUrl(alipayBaseUrl)
                 .build();
     }
 }

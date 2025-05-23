@@ -31,6 +31,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/", "/login", "/error", "/logout", "/logout-success").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()
+                .requestMatchers("/alipay/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -103,7 +104,8 @@ public class SecurityConfig {
                 oidcHandler.onLogoutSuccess(request, response, authentication);
             } else {
                 // 非 OAuth2 登录，默认登出处理
-                response.sendRedirect("/");
+                request.logout();
+                response.sendRedirect("/client"); // 或跳转到登录页
             }
         };
     }
